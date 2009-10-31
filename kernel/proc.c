@@ -800,7 +800,7 @@ PUBLIC  void removeTicket(int inProcID)
 			Ticket* nextTicket = tmpTickPt -> next;
 			
 			/*If the first ticket points to the desired process, delete it and change the head to the next ticket*/
-			if (TicketHead -> procID == inProcI)
+			if (TicketHead -> procID == inProcID)
 			{
 				Ticket* temp = TicketHead -> next;
 				TicketHead = NULL;
@@ -823,6 +823,7 @@ PUBLIC void setPriority( int nTickets, int procID)
 {
 	/*If nTickets is positive, we are adding tickets*/
 	if(nTickets > 0)
+	{
 		/*Add the desired number of tickets*/
 		for(int i =0; i<nTickets; i++)
 		{
@@ -835,13 +836,44 @@ PUBLIC void setPriority( int nTickets, int procID)
 	else
 	{
 		/*Subtract the desired number of tickets*/
-		for(int i =0; i<nTickets; i++)
+		for(int i =0; i>nTickets; i--)
 		{
 			/*Adds one ticket for the desired process*/
 			removeTickets(procID)
 		}
 		
 	}
+}
+
+/*
+ * Adds a ticket that is associated with the specified process.
+ *
+ * @param int procID the specified process
+ */
+void addTicket(int procID) 
+{
+	//Allocate memory and creates a new Ticket with the procID with next ticket being null
+	Ticket* ticket = malloc(sizeof(Ticket));
+	ticket->procID = procID;
+	ticket->next = 0;   
+   
+	//If Ticket List has nothing in it, set current Ticket to the Head
+	if( TicketHead == 0 ) 
+	{
+		TicketHead = ticket;
+	} 
+	else 
+	{
+		//if not we find the end of the list
+		Ticket* temp = TicketHead;
+		while( temp->next != 0)
+		{
+			temp = temp->next;
+		}
+		//and add the new ticket to the end of the list
+		temp->next = ticket;   
+	}
+
 }
 
 

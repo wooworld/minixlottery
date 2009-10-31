@@ -788,6 +788,11 @@ int e, *p, fatalflag;
 	return ok;
 }
 
+/*
+ * Remove a ticket that is associated with the specified process
+ *
+ * @param int inProcID = the specified process
+ */
 PUBLIC  void removeTicket(int inProcID)
 {
 		/*Set the head of the ticket list*/
@@ -819,6 +824,15 @@ PUBLIC  void removeTicket(int inProcID)
 	}
 }
 
+/*
+ * Adds or removes tickets associated with the specified process.
+ * Tickets are removed one at a time. The amount of tickets is specified with a
+ * parameter, positive number indicates addition of tickets, negative number 
+ * removal of tickets.
+ *
+ * @param int nTickets = the number of tickets to add or remove
+ * @param int procID = the specified process
+ */
 PUBLIC void setPriority( int nTickets, int procID)
 {
 	/*If nTickets is positive, we are adding tickets*/

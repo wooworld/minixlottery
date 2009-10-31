@@ -788,3 +788,80 @@ int e, *p, fatalflag;
 	return ok;
 }
 
+PUBLIC  void removeTicket(int inProcID)
+{
+		/*Set the head of the ticket list*/
+		Ticket* tmpTickPt = Tickethead;
+	
+		/*Go through the tickets*/
+		while (tmpTickPt != 0)
+		{
+			/*Grab the next ticket*/
+			Ticket* nextTicket = tmpTickPt -> next;
+			
+			/*If the first ticket points to the desired process, delete it and change the head to the next ticket*/
+			if (TicketHead -> procID == inProcI)
+			{
+				Ticket* temp = TicketHead -> next;
+				TicketHead = NULL;
+				TicketHead = temp;
+			}
+			
+			/*If the current ticket points to the desired process, we will delete this ticket*/
+			else if ( nextTicket -> procID == inProcID)
+			{
+				tmpTickPt -> next = nextTicket->next;
+				nextTicket = null;
+			}
+			/*Move to the next ticket*/
+			tmpTicketPt = tmpTicketPt->next;
+		}
+	}
+}
+
+PUBLIC void setPriority( int nTickets, int procID)
+{
+	/*If nTickets is positive, we are adding tickets*/
+	if(nTickets > 0)
+		/*Add the desired number of tickets*/
+		for(int i =0; i<nTickets; i++)
+		{
+			/*Adds one ticket for the desired process*/
+			addTickets(procID)
+		}
+	}
+	
+	/*If nTickets is negative, we are removing tickets from a process*/
+	else
+	{
+		/*Subtract the desired number of tickets*/
+		for(int i =0; i<nTickets; i++)
+		{
+			/*Adds one ticket for the desired process*/
+			removeTickets(procID)
+		}
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

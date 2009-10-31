@@ -91,9 +91,9 @@ FORWARD _PROTOTYPE( void pick_proc, (void));
 /*==========================================================================*
  * 				lottery global variables				     *
  *===========================================================================*/
-PUBLIC Ticket* ticketHead = malloc(sizeof(Ticket));
-ticketHead->next = 0;
-ticketHead->procID = 0;
+PUBLIC Ticket* TicketHead = malloc(sizeof(Ticket));
+TicketHead->next = 0;
+TicketHead->procID = 0;
 PUBLIC int ticketsTotal = 0;
 
 

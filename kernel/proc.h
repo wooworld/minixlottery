@@ -13,7 +13,12 @@
 #include "protect.h"
 #include "const.h"
 #include "priv.h"
- 
+
+struct Ticket {
+	int procID;		/* Process ID of ticket */
+	void* next;		/* Pointer to next ticket */
+};
+
 struct proc {
   struct stackframe_s p_reg;	/* process' registers saved in stack frame */
 
@@ -81,7 +86,7 @@ struct proc {
  * priority user processes to run round-robin with IDLE. 
  */
 #define NR_SCHED_QUEUES	20	/* MUST equal minimum priority + 1 */
-#define TASK_Q		   	0	/* highest, used for kernel tasks */
+#define TASK_Q			0	/* highest, used for kernel tasks */
 #define MAX_USER_Q		0	/* highest priority for user processes */   
 #define USER_Q			15	/* default (should correspond to nice 0) */   
 #define MIN_USER_Q		18	/* minimum priority for user processes */

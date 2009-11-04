@@ -802,7 +802,7 @@ int e, *p, fatalflag;
  *
  * @param int inProcID = the specified process
  */
-PUBLIC  void removeTicket(int inProcID)
+void removeTicket(int inProcID)
 {
 		/*Set the head of the ticket list*/
 		Ticket* tmpTickPt = TicketHead;
@@ -842,7 +842,7 @@ PUBLIC  void removeTicket(int inProcID)
  * @param int nTickets = the number of tickets to add or remove
  * @param int procID = the specified process
  */
-PUBLIC void setPriority( int nTickets, int procID)
+void setPriority( int nTickets, int procID)
 {
 	/*If nTickets is positive, we are adding tickets*/
 	if(nTickets > 0)

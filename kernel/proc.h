@@ -9,6 +9,16 @@
  * fields are defined in the assembler include file sconst.h.  When changing
  * struct proc, be sure to change sconst.h to match.
  */
+ 
+ /*
+  * Lottery Scheduling 
+  * Authors:
+  *
+  * Mike Phillips - mjp0672
+  * Gerry Brunelle - gxb7893
+  * Shi Deng - snd8511
+  */
+  
 #include <minix/com.h>
 #include "protect.h"
 #include "const.h"
@@ -58,6 +68,8 @@ struct proc {
   int p_ready, p_found;
 #endif
 
+  /*Lottery Scheduling*/
+  /*The number of lottery tickets that this process holds*/
   int numTickets;
 
 };
@@ -78,6 +90,7 @@ struct proc {
 #define REPLY_PENDING	0x01	/* reply to IPC_REQUEST is pending */
 #define MF_VM		0x08	/* process uses VM */
 
+/*Lottery Scheduling*/
 /* Scheduling priorities for p_priority. Values must start at zero (highest
  * priority) and increment.  Priorities of the processes in the boot image 
  * can be set in table.c. IDLE must have a queue for itself, to prevent low 

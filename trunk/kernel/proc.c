@@ -641,10 +641,10 @@ PRIVATE void pick_proc()
   /*Generate the random ticket*/
   int chosenTicket = rand(totalTickets-1)+1;
   
-  rp = rdyHead[15];
+  rp = rdy_head[15];
   
   /*decrement chosenTicket by the number of tickets in the current process*/
-  chosenTicket = chosenTicket - rp->numTickets
+  chosenTicket = chosenTicket - rp->numTickets;
   
   while(chosenTicket>0)
   {
@@ -652,7 +652,7 @@ PRIVATE void pick_proc()
 		rp = rp->p_nextready;
 	  
 		/*decrement chosenTicket by the number of tickets in the current process*/
-		chosenTicket = chosenTicket - rp->numTickets
+		chosenTicket = chosenTicket - rp->numTickets;
 			
   }
   /*Set the current process to be run*/

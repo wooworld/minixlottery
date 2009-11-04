@@ -18,6 +18,15 @@
  *   May 24, 2005     new notification system call  (Jorrit N. Herder)
  *   Oct 28, 2004     nonblocking send and receive calls  (Jorrit N. Herder)
  *
+ * ---------------------------
+ * Lottery Scheduling
+ *
+ * Authors:
+ *
+ * Mike Phillips - mjp0672
+ * Gerry Brunelle - gxb7893
+ * Shi Deng - snd8511
+ * 
  * The code here is critical to make everything work and is important for the
  * overall performance of the system. A large fraction of the code deals with
  * list manipulation. To make this both easy to understand and fast to execute 
@@ -89,6 +98,7 @@ FORWARD _PROTOTYPE( void pick_proc, (void));
  */
 #endif /* (CHIP == M68000) */
 
+/*Lottery Scheduling*/
 /*Total number of process tickets, used for lottery scheduling*/
 int totalTickets = 0;
 /*Style sets the process scheduling algorithm.
@@ -506,6 +516,7 @@ int dst_e;			/* (endpoint) who is to be notified */
   return(result);
 }
 
+/*Lottery Scheduling*/
 /*===========================================================================*
  *                             setpriority                                   *
  *==========================================================================*/
@@ -524,7 +535,9 @@ register struct proc *rp;
    }
    else
    {
+      /*Add nTickets to the process's tickets*/
       rp->numTickets = rp->numTickets+ntickets;
+      /*Increase the total number of tickets*/
       totalTickets = totalTickets + ntickets;
    }
   }
@@ -541,7 +554,9 @@ register struct proc *rp;
    }
    else
    {
+      /*Subtract ntickets from the process's tickets*/
       rp->numTickets = rp->numTickets - ntickets;
+      /*Decrement the total number of tickets*/
       totalTickets = totalTickets - ntickets;
    }
   }
@@ -585,6 +600,7 @@ register struct proc *rp;	/* this process is now runnable */
       rp->p_nextready = NIL_PROC;		/* mark new end */
   }
 
+  /*Lottery Scheduling*/
   /*Add the process's tickets to totalTickets*/
   totalTickets = totalTickets + rp->numTickets;
 
@@ -640,6 +656,7 @@ register struct proc *rp;	/* this process is no longer runnable */
       prev_xp = *xpp;				/* save previous in chain */
   }
 
+  /*Lottery Scheduling*/
   /*Remove the process's tickets from totalTickets*/
   totalTickets = totalTickets - rp->numTickets;
 
@@ -684,7 +701,7 @@ int *front;					/* return: front or back */
    *front = time_left;
   }
   /*Lottery Scheduling*/
-  else if (style == 1)
+  else
   {
    /*All processes are put on the end of the 16th queue*/
    *queue = 15;
@@ -721,7 +738,7 @@ PRIVATE void pick_proc()
     }
   }
   /* Lottery Scheduling*/
-  else if (style == 1)
+  else
   {
     /*Choose a random ticket number*/
     int chosenTicket = rand(totalTickets-1)+1;

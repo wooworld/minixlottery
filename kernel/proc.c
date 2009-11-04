@@ -798,6 +798,41 @@ int e, *p, fatalflag;
 }
 
 /*
+ * Adds or removes tickets associated with the specified process.
+ * Tickets are removed one at a time. The amount of tickets is specified with a
+ * parameter, positive number indicates addition of tickets, negative number 
+ * removal of tickets.
+ *
+ * @param int nTickets = the number of tickets to add or remove
+ * @param int procID = the specified process
+ */
+void setPriority( int nTickets, int procID)
+{
+	/*If nTickets is positive, we are adding tickets*/
+	if(nTickets > 0)
+	{
+		/*Add the desired number of tickets*/
+		for(int i =0; i<nTickets; i++)
+		{
+			/*Adds one ticket for the desired process*/
+			addTicket(procID)
+		}
+	}
+	
+	/*If nTickets is negative, we are removing tickets from a process*/
+	else
+	{
+		/*Subtract the desired number of tickets*/
+		for(int i =0; i>nTickets; i--)
+		{
+			/*Adds one ticket for the desired process*/
+			removeTicket(procID)
+		}
+		
+	}
+}
+
+/*
  * Remove a ticket that is associated with the specified process
  *
  * @param int inProcID = the specified process
@@ -830,41 +865,6 @@ void removeTicket(int inProcID)
 			/*Move to the next ticket*/
 			tmpTicketPt = tmpTicketPt->next;
 		}
-	}
-}
-
-/*
- * Adds or removes tickets associated with the specified process.
- * Tickets are removed one at a time. The amount of tickets is specified with a
- * parameter, positive number indicates addition of tickets, negative number 
- * removal of tickets.
- *
- * @param int nTickets = the number of tickets to add or remove
- * @param int procID = the specified process
- */
-void setPriority( int nTickets, int procID)
-{
-	/*If nTickets is positive, we are adding tickets*/
-	if(nTickets > 0)
-	{
-		/*Add the desired number of tickets*/
-		for(int i =0; i<nTickets; i++)
-		{
-			/*Adds one ticket for the desired process*/
-			addTickets(procID)
-		}
-	}
-	
-	/*If nTickets is negative, we are removing tickets from a process*/
-	else
-	{
-		/*Subtract the desired number of tickets*/
-		for(int i =0; i>nTickets; i--)
-		{
-			/*Adds one ticket for the desired process*/
-			removeTickets(procID)
-		}
-		
 	}
 }
 

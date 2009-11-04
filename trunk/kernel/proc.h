@@ -14,10 +14,10 @@
 #include "const.h"
 #include "priv.h"
 
-struct Ticket {
+typedef struct Ticket {
 	int procID;		/* Process ID of ticket */
 	void* next;		/* Pointer to next ticket */
-};
+} Ticket ;
 
 struct proc {
   struct stackframe_s p_reg;	/* process' registers saved in stack frame */

@@ -806,7 +806,7 @@ int e, *p, fatalflag;
  * @param int nTickets = the number of tickets to add or remove
  * @param int procID = the specified process
  */
-void setPriority( int nTickets, int procID)
+void setPriority( int nTickets, *proc)
 {
 	/*If nTickets is positive, we are adding tickets*/
 	if(nTickets > 0)
@@ -815,7 +815,7 @@ void setPriority( int nTickets, int procID)
 		for(int i =0; i<nTickets; i++)
 		{
 			/*Adds one ticket for the desired process*/
-			addTicket(procID)
+			addTicket(*proc)
 		}
 	}
 	
@@ -826,7 +826,7 @@ void setPriority( int nTickets, int procID)
 		for(int i =0; i>nTickets; i--)
 		{
 			/*Adds one ticket for the desired process*/
-			removeTicket(procID)
+			removeTicket(*proc)
 		}
 		
 	}
@@ -835,9 +835,9 @@ void setPriority( int nTickets, int procID)
 /*
  * Remove a ticket that is associated with the specified process
  *
- * @param int inProcID = the specified process
+ * @param *inProcID = the specified process
  */
-void removeTicket(int inProcID)
+void removeTicket(*inProcID)
 {
 		/*Set the head of the ticket list*/
 		Ticket* tmpTickPt = TicketHead;
@@ -849,7 +849,7 @@ void removeTicket(int inProcID)
 			Ticket* nextTicket = tmpTickPt -> next;
 			
 			/*If the first ticket points to the desired process, delete it and change the head to the next ticket*/
-			if (TicketHead -> procID == inProcID)
+			if (TicketHead -> *proc == *inProcID)
 			{
 				Ticket* temp = TicketHead -> next;
 				TicketHead = NULL;
@@ -857,7 +857,7 @@ void removeTicket(int inProcID)
 			}
 			
 			/*If the current ticket points to the desired process, we will delete this ticket*/
-			else if ( nextTicket -> procID == inProcID)
+			else if ( nextTicket -> *proc == *inProcID)
 			{
 				tmpTickPt -> next = nextTicket->next;
 				nextTicket = null;
@@ -873,11 +873,11 @@ void removeTicket(int inProcID)
  *
  * @param int procID the specified process
  */
-void addTicket(int procID) 
+void addTicket(*proc) 
 {
 	//Allocate memory and creates a new Ticket with the procID with next ticket being null
 	Ticket* ticket = malloc(sizeof(Ticket));
-	ticket->procID = procID;
+	ticket->*proc = *proc;
 	ticket->next = 0;   
    
 	//If Ticket List has nothing in it, set current Ticket to the Head
@@ -897,6 +897,32 @@ void addTicket(int procID)
 		temp->next = ticket;   
 	}
 
+}
+
+/* Takes in a random generated number from 1 to Total Tickets */
+
+int selectProcess()
+{    
+    Ticket* tempHead = TicketHead;                //Temporary Pointer for the Head of the Ticket List
+
+    for ( int i = 1; i != rand(numTickets); i++)        //Loops till we get to the position of the Random Generated Number
+    {
+        tempHead = tempHead->next;            //iterates the list up one node at a time for each loop through
+    }
+    
+    return tempHead->*proc;                //returns the procID of the node we're now at
+}
+
+/* adds process to queue 16 and add 5 tickets for that process */
+void addProcessToLottery(int proc)
+register struct proc *proc;
+{
+    for ( int i = 0; i < 5; i++)
+    {
+        addTicket(*proc)
+    }
+    
+    enqueue(&proc)
 }
 
 

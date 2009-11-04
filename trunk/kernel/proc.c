@@ -43,6 +43,7 @@
 #include "kernel.h"
 #include "proc.h"
 #include <signal.h>
+#include <time.h>
 
 /* Scheduling and message passing functions. The functions are available to 
  * other parts of the kernel through lock_...(). The lock temporarily disables 
@@ -95,7 +96,7 @@ int totalTickets = 0;
  * 1 = Static Lottery Scheduling
  * 2 = Dynamic Lottery Scheduling
  */
-int style = 1;
+int style = 2;
 
 /*===========================================================================*
  *				sys_call				     * 
@@ -517,13 +518,31 @@ register struct proc *rp;
    /*As complicated as this may seem, it just makes sure
     * that the process can't have over 20 tickets.
     */
-   if((20 - rp->numTickets) < ntickets)
+   if((20 - rp->numTickets) < ntickets || rp->numTickets == 20)
    {
       rp->numTickets = 20;
    }
    else
    {
       rp->numTickets = rp->numTickets+ntickets;
+      totalTickets = totalTickets + ntickets;
+   }
+  }
+  /*If ntickets is positive, subtract that number of tickets*/
+  else
+  {
+   /*Reverse ntickets, for easiness*/
+   ntickets = ntickets * -1;
+
+   /*Ensure that the number of tickets is greater than 0 always*/
+   if(rp->numTickets < ntickets || rp->numTickets == 1)
+   {
+      rp->numTickets = 1;
+   }
+   else
+   {
+      rp->numTickets = rp->numTickets - ntickets;
+      totalTickets = totalTickets - ntickets;
    }
   }
 }
@@ -554,6 +573,7 @@ register struct proc *rp;	/* this process is now runnable */
   if (rdy_head[q] == NIL_PROC) {		/* add to empty queue */
       rdy_head[q] = rdy_tail[q] = rp; 		/* create a new queue */
       rp->p_nextready = NIL_PROC;		/* mark new end */
+      srand((unsigned int)time(NULL));		/* seed the rand generator*/
   } 
   else if (front) {				/* add to head of queue */
       rp->p_nextready = rdy_head[q];		/* chain head of queue */
@@ -658,13 +678,13 @@ int *front;					/* return: front or back */
    * so that it can immediately run. The queue to use simply is always the
    * process' current priority. 
    */
-  if (style = 0) /*standard scheduling*/
+  if (style == 0) /*standard scheduling*/
   {
    *queue = rp->p_priority;
    *front = time_left;
   }
   /*Lottery Scheduling*/
-  else if (style = 1)
+  else if (style == 1)
   {
    /*All processes are put on the end of the 16th queue*/
    *queue = 15;
@@ -689,7 +709,7 @@ PRIVATE void pick_proc()
    * The lowest queue contains IDLE, which is always ready.
    */
   /*Standard Scheduling*/
-  if(style = 0)
+  if(style == 0)
   {
     for (q=0; q < NR_SCHED_QUEUES; q++) {	
       if ( (rp = rdy_head[q]) != NIL_PROC) {
@@ -701,11 +721,11 @@ PRIVATE void pick_proc()
     }
   }
   /* Lottery Scheduling*/
-  else if (style = 1)
+  else if (style == 1)
   {
     /*Choose a random ticket number*/
     int chosenTicket = rand(totalTickets-1)+1;
-
+     
     /*Set the current process to the first process in the queue*/
     rp = rdy_head[15];
 
@@ -720,6 +740,11 @@ PRIVATE void pick_proc()
      */
     while (chosenTicket > 0)
     {
+      if(style == 2)
+      {
+        /*Since rp is not running, add another ticket to it*/
+        setpriority(1, rp);
+      }
       /*Get the next process*/
       rp = rp->p_nextready;
   
@@ -728,6 +753,12 @@ PRIVATE void pick_proc()
     }
     /*Set the next process to run to be the current process*/
     next_ptr = rp;
+    
+    if(style == 2)
+    {
+      /*Subtract 1 ticket from the current process, which will run*/
+      setpriority(-1, rp);
+    }
   }
 } 
 

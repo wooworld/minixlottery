@@ -519,6 +519,9 @@ register struct proc *rp;	/* this process is now runnable */
 
   /* Determine where to insert to process. */
   sched(rp, &q, &front);
+  
+  /*A new process in the queue will have 5 tickets*/
+  totalTickets = totalTickets + rp->numTickets;
 
   /* Now add the process to the queue. */
   if (rdy_head[q] == NIL_PROC) {		/* add to empty queue */
@@ -569,6 +572,9 @@ register struct proc *rp;	/* this process is no longer runnable */
   if (! rp->p_ready) kprintf("dequeue() already unready process\n");
 #endif
 
+  /* Remove the processes tickets from the ticket total */
+  totalTickets = totalTickets - rp->numTickets;
+  
   /* Now make sure that the process is not in its ready queue. Remove the 
    * process if it is found. A process can be made unready even if it is not 
    * running by being sent a signal that kills it.

@@ -43,6 +43,7 @@
 #include "kernel.h"
 #include "proc.h"
 #include <signal.h>
+#include <stdio.h>
 
 /* Scheduling and message passing functions. The functions are available to 
  * other parts of the kernel through lock_...(). The lock temporarily disables 
@@ -522,6 +523,8 @@ register struct proc *rp;	/* this process is now runnable */
   
   /*A new process in the queue will have 5 tickets*/
   totalTickets = totalTickets + rp->numTickets;
+  
+  printf("adding tickets");
 
   /* Now add the process to the queue. */
   if (rdy_head[q] == NIL_PROC) {		/* add to empty queue */
@@ -574,6 +577,8 @@ register struct proc *rp;	/* this process is no longer runnable */
 
   /* Remove the processes tickets from the ticket total */
   totalTickets = totalTickets - rp->numTickets;
+  
+  printf("removing tickets");
   
   /* Now make sure that the process is not in its ready queue. Remove the 
    * process if it is found. A process can be made unready even if it is not 
@@ -632,7 +637,9 @@ int *front;					/* return: front or back */
   *queue = rp->p_priority;
   *front = time_left;
 */
-	*queue = 15;
+	printf("scheduling");
+
+  *queue = 15;
 	*front = 0;
 }
 
@@ -661,6 +668,7 @@ PRIVATE void pick_proc()
       }
   }*/
 
+  printf("choosing process");
   int chosenTicket = rand(totalTickets-1)+1;
 
   rp = rdy_head[15];
@@ -675,6 +683,8 @@ PRIVATE void pick_proc()
   }
 
   next_ptr = rp;
+  
+  printf("process chosen");
 
 }
 

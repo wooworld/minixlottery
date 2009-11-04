@@ -805,7 +805,7 @@ int e, *p, fatalflag;
 PUBLIC  void removeTicket(int inProcID)
 {
 		/*Set the head of the ticket list*/
-		Ticket* tmpTickPt = Tickethead;
+		Ticket* tmpTickPt = TicketHead;
 	
 		/*Go through the tickets*/
 		while (tmpTickPt != 0)

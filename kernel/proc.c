@@ -84,7 +84,7 @@ FORWARD _PROTOTYPE( void pick_proc, (void));
  */
 #endif /* (CHIP == M68000) */
 
-int numTickets = 0;
+int totalTickets = 0;
 
 /*===========================================================================*
  *				sys_call				     * 
@@ -593,7 +593,7 @@ int *front;					/* return: front or back */
    */
   if (penalty != 0 && ! iskernelp(rp)) {
       rp->p_priority += penalty;		/* update with penalty */
-      if (rp->p_priority < rp->p_max_priority)  /* check upper bound */ 
+     if (rp->p_priority < rp->p_max_priority)  /* check upper bound */ 
           rp->p_priority=rp->p_max_priority;
       else if (rp->p_priority > IDLE_Q-1)   	/* check lower bound */
       	  rp->p_priority = IDLE_Q-1;
@@ -609,7 +609,7 @@ int *front;					/* return: front or back */
   */
   /*for lottery scheduling*/
   *queue = 15;
-  *front = false;
+  *front = 0;
 }
 
 /*===========================================================================*
@@ -629,33 +629,34 @@ PRIVATE void pick_proc()
    * The lowest queue contains IDLE, which is always ready.
    */
   /* for normal scheduling */
-  //for (q=0; q < NR_SCHED_QUEUES; q++) {	
-     // if ( (rp = rdy_head[q]) != NIL_PROC) {
-        //  next_ptr = rp;			/* run process 'rp' next */
-          //if (priv(rp)->s_flags & BILLABLE)	 	
-             // bill_ptr = rp;			/* bill for system time */
-          //return;				 
-      //}
-  //}
-  //Generate the random ticket
+  
+  /*for (q=0; q < NR_SCHED_QUEUES; q++) {	
+      if ( (rp = rdy_head[q]) != NIL_PROC) {
+         next_ptr = rp;			/* run process 'rp' next */
+         /* if (priv(rp)->s_flags & BILLABLE)	 	
+             bill_ptr = rp;			/* bill for system time */
+          /*return;				 
+      }
+  }*/
+  /*Generate the random ticket*/
   int chosenTicket = rand(totalTickets-1)+1;
   
-  proc* currentProc = rdyHead[15];
+  rp = rdyHead[15];
   
-  //decrement chosenTicket by the number of tickets in the current process
-  chosenTicket = chosenTicket - currentProc->numTickets
+  /*decrement chosenTicket by the number of tickets in the current process*/
+  chosenTicket = chosenTicket - rp->numTickets
   
   while(chosenTicket>0)
   {
-		//get next process
-		currentProc = p_nextready;
+		/*get next process*/
+		rp = rp->p_nextready;
 	  
-		//decrement chosenTicket by the number of tickets in the current process
-		chosenTicket = chosenTicket - currentProc->numTickets
+		/*decrement chosenTicket by the number of tickets in the current process*/
+		chosenTicket = chosenTicket - rp->numTickets
 			
   }
-  //Set the current process to be run
-  next_ptr = currentProc;
+  /*Set the current process to be run*/
+  next_ptr = rp;
 	
 	
 }

@@ -6,6 +6,14 @@
  *    m1_i2:	PR_ENDPT (parent, process that forked)	
  */
 
+/*
+ *Lottery Scheduling Authors:
+ *
+ * Mike Phillips - mjp0672
+ * Gerry Brunelle - gxb7893
+ * Shi Deng - snd8511
+ */
+
 #include "../system.h"
 #include <signal.h>
 #if (CHIP == INTEL)

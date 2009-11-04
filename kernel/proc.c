@@ -43,7 +43,6 @@
 #include "kernel.h"
 #include "proc.h"
 #include <signal.h>
-#include <stdio.h>
 
 /* Scheduling and message passing functions. The functions are available to 
  * other parts of the kernel through lock_...(). The lock temporarily disables 
@@ -89,7 +88,14 @@ FORWARD _PROTOTYPE( void pick_proc, (void));
  */
 #endif /* (CHIP == M68000) */
 
+/*Total number of process tickets, used for lottery scheduling*/
 int totalTickets = 0;
+/*Style sets the process scheduling algorithm.
+ * 0 = Standard Scheduling
+ * 1 = Static Lottery Scheduling
+ * 2 = Dynamic Lottery Scheduling
+ */
+int style = 1;
 
 /*===========================================================================*
  *				sys_call				     * 
@@ -500,6 +506,29 @@ int dst_e;			/* (endpoint) who is to be notified */
 }
 
 /*===========================================================================*
+ *                             setpriority                                   *
+ *==========================================================================*/
+PRIVATE void setPriority(ntickets, rp)
+register struct proc *rp;
+{
+  /*If ntickets is positive, add that number of tickets*/
+ if (ntickets > 0)
+ {
+   /*As complicated as this may seem, it just makes sure
+    * that the process can't have over 20 tickets.
+    */
+   if((20 - rp->numTickets) < ntickets)
+   {
+      rp->numTickets = 20;
+   }
+   else
+   {
+      rp->numTickets = rp->numTickets+ntickets;
+   }
+  }
+}
+
+/*===========================================================================*
  *				enqueue					     * 
  *===========================================================================*/
 PRIVATE void enqueue(rp)
@@ -520,11 +549,6 @@ register struct proc *rp;	/* this process is now runnable */
 
   /* Determine where to insert to process. */
   sched(rp, &q, &front);
-  
-  /*A new process in the queue will have 5 tickets*/
-  totalTickets = totalTickets + rp->numTickets;
-  
-  printf("adding tickets");
 
   /* Now add the process to the queue. */
   if (rdy_head[q] == NIL_PROC) {		/* add to empty queue */
@@ -540,6 +564,9 @@ register struct proc *rp;	/* this process is now runnable */
       rdy_tail[q] = rp;				/* set new queue tail */
       rp->p_nextready = NIL_PROC;		/* mark new end */
   }
+
+  /*Add the process's tickets to totalTickets*/
+  totalTickets = totalTickets + rp->numTickets;
 
   /* Now select the next process to run. */
   pick_proc();			
@@ -575,11 +602,6 @@ register struct proc *rp;	/* this process is no longer runnable */
   if (! rp->p_ready) kprintf("dequeue() already unready process\n");
 #endif
 
-  /* Remove the processes tickets from the ticket total */
-  totalTickets = totalTickets - rp->numTickets;
-  
-  printf("removing tickets");
-  
   /* Now make sure that the process is not in its ready queue. Remove the 
    * process if it is found. A process can be made unready even if it is not 
    * running by being sent a signal that kills it.
@@ -597,6 +619,9 @@ register struct proc *rp;	/* this process is no longer runnable */
       }
       prev_xp = *xpp;				/* save previous in chain */
   }
+
+  /*Remove the process's tickets from totalTickets*/
+  totalTickets = totalTickets - rp->numTickets;
 
 #if DEBUG_SCHED_CHECK
   rp->p_ready = 0;
@@ -633,14 +658,18 @@ int *front;					/* return: front or back */
    * so that it can immediately run. The queue to use simply is always the
    * process' current priority. 
    */
-/*
-  *queue = rp->p_priority;
-  *front = time_left;
-*/
-	printf("scheduling");
-
-  *queue = 15;
-	*front = 0;
+  if (style = 0) /*standard scheduling*/
+  {
+   *queue = rp->p_priority;
+   *front = time_left;
+  }
+  /*Lottery Scheduling*/
+  else if (style = 1)
+  {
+   /*All processes are put on the end of the 16th queue*/
+   *queue = 15;
+   *front = 0;
+  }
 }
 
 /*===========================================================================*
@@ -659,34 +688,49 @@ PRIVATE void pick_proc()
    * queues is defined in proc.h, and priorities are set in the task table.
    * The lowest queue contains IDLE, which is always ready.
    */
-  /*for (q=0; q < NR_SCHED_QUEUES; q++) {	
+  /*Standard Scheduling*/
+  if(style = 0)
+  {
+    for (q=0; q < NR_SCHED_QUEUES; q++) {	
       if ( (rp = rdy_head[q]) != NIL_PROC) {
-          next_ptr = rp;			
+          next_ptr = rp;			/* run process 'rp' next */
           if (priv(rp)->s_flags & BILLABLE)	 	
-              bill_ptr = rp;			
+              bill_ptr = rp;			/* bill for system time */
           return;				 
       }
-  }*/
-
-  printf("choosing process");
-  int chosenTicket = rand(totalTickets-1)+1;
-
-  rp = rdy_head[15];
-
-  chosenTicket = chosenTicket - (rp->numTickets);
-
-  while (chosenTicket > 0)
-  {
-	  rp = rp->p_nextready;
-
-	  chosenTicket = chosenTicket - (rp->numTickets);
+    }
   }
+  /* Lottery Scheduling*/
+  else if (style = 1)
+  {
+    /*Choose a random ticket number*/
+    int chosenTicket = rand(totalTickets-1)+1;
 
-  next_ptr = rp;
+    /*Set the current process to the first process in the queue*/
+    rp = rdy_head[15];
+
+    /*Decrement the chosenTicket by the current process's number
+     *of tickets. If it reaches or passes zero, this is the
+     *process to run.
+     */
+    chosenTicket = chosenTicket - (rp->numTickets);
+    
+    /*If the head process is not the chosen one, cycle through
+     *the remaining processes until the right one is found.
+     */
+    while (chosenTicket > 0)
+    {
+      /*Get the next process*/
+      rp = rp->p_nextready;
   
-  printf("process chosen");
+      /*Change the chosen ticket*/
+      chosenTicket = chosenTicket - (rp->numTickets);
+    }
+    /*Set the next process to run to be the current process*/
+    next_ptr = rp;
+  }
+} 
 
-}
 
 /*===========================================================================*
  *				balance_queues				     *

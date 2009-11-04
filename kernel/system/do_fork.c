@@ -13,7 +13,6 @@
 #endif
 
 #include <minix/endpoint.h>
-#include <stdio.h>
 
 #if USE_FORK
 
@@ -79,10 +78,9 @@ register message *m_ptr;	/* pointer to request message */
 
   /* Calculate endpoint identifier, so caller knows what it is. */
   m_ptr->PR_ENDPT = rpc->p_endpoint;
-	
+
+  /*Add 5 tickets to the child process*/
   rpc->numTickets = 5;
-  
-  printf("process created");
 
   return(OK);
 }
